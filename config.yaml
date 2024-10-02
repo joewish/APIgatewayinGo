@@ -1,0 +1,70 @@
+server:
+  port: ":9345"            # The port on which the API Gateway will run
+  timeout: 30s          # Request timeout duration (in seconds)
+  # enable_tls: true      # Enable/Disable TLS support
+  # tls_cert_file: "/path/to/cert.pem"  # Path to TLS certificate file
+  # tls_key_file: "/path/to/key.pem"    # Path to TLS key file
+
+logging:
+  level: "info"         # Log level: debug, info, warn, error
+  log_file: "/var/log/api-gateway.log" # Path to log file
+
+auth:
+  jwt_secret: "your-secret-key"       # Secret key for JWT authentication
+  token_expiry: "1h"                  # JWT token expiration time
+
+rate_limit:
+  enabled: true          # Enable/Disable rate limiting
+  requests_per_minute: 60 # Number of requests allowed per minute per client
+
+cache:
+  enabled: true          # Enable/Disable caching
+  redis_address: "localhost:6379"   # Redis server address
+  redis_password: ""      # Redis password (if any)
+  redis_db: 0             # Redis DB number
+
+services:
+  discovery:
+    enabled: true        # Enable/Disable service discovery
+    provider: "consul"   # Service discovery provider: consul, etcd, etc.
+    consul_address: "localhost:8500" # Address of Consul service
+  load_balancer:
+    strategy: "round_robin" # Load balancing strategy: round_robin, least_conn, etc.
+  
+  upstreams:             # Define the upstream backend services
+    - name: "user-service"
+      url: "http://user-service.local:8081"
+      routes:
+        - path: "/api/v1/users"
+          methods: ["GET", "POST", "PUT", "DELETE"]
+        - path: "/api/v1/users/{id}"
+          methods: ["GET", "PUT", "DELETE"]
+    - name: "order-service"
+      url: "http://order-service.local:8082"
+      routes:
+        - path: "/api/v1/orders"
+          methods: ["GET", "POST"]
+
+security:
+  cors:
+    enabled: true        # Enable/Disable CORS
+    allowed_origins:     # List of allowed origins
+      - "https://example.com"
+      - "https://anotherdomain.com"
+    allowed_methods:     # List of allowed HTTP methods
+      - "GET"
+      - "POST"
+      - "PUT"
+      - "DELETE"
+    allowed_headers:     # List of allowed HTTP headers
+      - "Content-Type"
+      - "Authorization"
+
+metrics:
+  enabled: true          # Enable/Disable Prometheus metrics
+  prometheus_address: ":9090"  # Prometheus endpoint
+
+circuit_breaker:
+  enabled: true          # Enable/Disable circuit breaker
+  failure_threshold: 5   # Number of consecutive failures to trigger circuit breaker
+  timeout_duration: 10s  # Time before retrying after circuit is open
